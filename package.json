@@ -2,7 +2,7 @@
   "name": "luna-sherpa-multiagent",
   "displayName": "Luna Sherpa Multi-Agent",
   "description": "Luna Sherpa Companion — introducing MacroFlow ritual with voice, background sync, parallel skills, and seamless grok.com conversation sync. Now with Grok 4.20 multimodal capabilities for video, voice, and build generation.",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "license": "MIT",
   "publisher": "acornsoft",
   "icon": "images/Acornsoft.png",
