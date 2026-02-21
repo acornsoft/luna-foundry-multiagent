@@ -70,6 +70,14 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
       
+      // Update Luna agent with userAddress
+      const lunaAgentPath = path.join(agentsDir, 'Luna.agent.md');
+      if (fs.existsSync(lunaAgentPath)) {
+        let lunaAgentContent = fs.readFileSync(lunaAgentPath, 'utf8');
+        lunaAgentContent = lunaAgentContent.replace(/\{\{userAddress\}\}/g, userAddress);
+        fs.writeFileSync(lunaAgentPath, lunaAgentContent);
+      }
+      
       // For now, show a placeholder - full implementation would load and invoke agents
       vscode.window.showInformationMessage('Agents located. Switching to Constitution agent for setup.');
       
