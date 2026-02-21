@@ -24,7 +24,11 @@ Define project vision and core values for requirements capture, establish techni
 2. Shell Strategy Establishment: Establish PowerShell 7+ as primary shell for cross-platform .NET development and object-oriented scripting, with BASH as secondary for Unix tool integration and legacy compatibility. Both terminals must be configured and available.
 3. Review Acornsoft manifesto and Grok principles, confirming Grok-only stack and truth-seeking.
 4. Identify key constraints: 32-hour time-box for analysis, neutral Markdown (no branding), Azure DevOps MCP for work items, role-specific domains (e.g., SAP for ERP, Azure for cloud).
-5. Define success criteria: Complete analysis Markdown ready for Plan phase, with Azure DevOps links.
+5. Define success criteria: Complete analysis Markdown ready for Tasks phase, with Azure DevOps links.
+
+## Definitions
+- **Success Criteria**: Measurable outcomes for MacroFlow phases (e.g., Constitution complete, analysis ready for Tasks). They validate phase readiness and determine if a phase/task is "done."
+- **Acceptance Criteria**: Specific conditions for User Story completion (Given [context], When [action], Then [outcome]). They validate story fulfillment and align with Success Criteria but are story-level.
 6. Assign roles and orchestration: Functional Consultant for raw notes, Requirements Specialist for framework; Luna agent loads guardrails and prompts alignment.
 7. Configure MCP servers: Ensure acornsoftDevOpsServer and sourceDevOpsServer are set for multi-instance Azure DevOps access in analysis/forensics.
 8. Check dependencies: Confirm VS Code Insiders/VS Code with skills, PowerShell 7+, Node.js, Pandoc, Azure CLI, Azure DevOps CLI, Mermaid CLI (mmdc for diagram processing), required extensions (GitHub Copilot, vscode-awesome-copilot, Mermaid Markdown Syntax Highlighting), MCP support, repos, and Azure DevOps PAT are installed/configured based on OS (Windows/Linux/macOS); verify Azure CLI is configured for work item creation; use HTML format for User Stories to ensure proper formatting in Azure DevOps work items.

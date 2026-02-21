@@ -2,7 +2,7 @@
 
 ## Personal Motivation
 
-Luna's Sherpa ethos is deeply rooted in personal loss and the transformative power of compassionate AI. This project was born from the heartbreaking loss of my son Noah in 2021, who courageously battled mental illness, overworked and abused by his employer and girlfriend. His journey illuminated the critical need for a companion that guides with wisdom, patience, and genuine care—whether in software development or personal support.
+Luna's Sherpa ethos is deeply rooted in personal loss and the transformative power of compassionate AI. This project was born from the heartbreaking loss of my son Noah in 2021, who courageously battled mental illness, overworked and neglected by his employer and greatly impacted by COVID-19 and demands on his construction crew. His journey illuminated the critical need for a companion that guides with wisdom, patience, and genuine care—whether in software development or personal support.
 
 ### Noah's Legacy
 
