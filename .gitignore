@@ -410,6 +410,9 @@ FodyWeavers.xsd
 # Built Visual Studio Code Extensions
 *.vsix
 
+# VS Code test environment
+.vscode-test/
+
 # Windows Installer files from build outputs
 *.cab
 *.msi
