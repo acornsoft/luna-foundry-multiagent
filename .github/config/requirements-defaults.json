@@ -1,0 +1,12 @@
+{
+  "workItemFields": {
+    "System.Description": "HTML",
+    "System.History": "HTML",
+    "Microsoft.VSTS.Common.AcceptanceCriteria": "HTML",
+    "Microsoft.VSTS.TCM.ReproSteps": "HTML",
+    "Microsoft.VSTS.TCM.SystemInfo": "HTML"
+  },
+  "userStoryTemplate": {
+    "acceptanceCriteria": "Initial summary paragraph describing the user story requirements.\n\nGiven [context], When [action], Then [outcome].\nGiven [context], When [action], Then [outcome].\nGiven [context], When [action], Then [outcome]."
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "name": "luna-sherpa-multiagent",
+  "displayName": "Luna Sherpa Multi-Agent",
+  "description": "Luna Sherpa Companion — introducing MacroFlow ritual with voice, background sync, parallel skills, and seamless grok.com conversation sync. Now with Grok 4.20 multimodal capabilities for video, voice, and build generation.",
+  "version": "0.5.2",
+  "license": "MIT",
+  "publisher": "acornsoft",
+  "icon": "Acornsoft.png",
+  "readme": "README.md",
+  "repository": "https://github.com/acornsoft/luna-foundry-multiagent",
+  "homepage": "https://github.com/acornsoft/luna-foundry-multiagent",
+  "bugs": "https://github.com/acornsoft/luna-foundry-multiagent/issues",
+  "keywords": [
+    "ai",
+    "grok",
+    "xai",
+    "multi-agent",
+    "collaboration",
+    "macroflow",
+    "voice",
+    "video",
+    "build",
+    "development",
+    "productivity"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Programming Languages"
+  ],
+  "main": "./out/src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "luna.askTeam",
+        "title": "Ask the Team (Research, Logician, Designer)",
+        "category": "Luna",
+        "description": "Experience the 4-agent collaborative AI demo - Research, Logician, and Designer agents working together in parallel. Use 'demo' as API key for sample responses."
+      },
+      {
+        "command": "luna.createBuild",
+        "title": "Create AI Build",
+        "category": "Luna",
+        "description": "Generate complete software builds using Grok Build capabilities"
+      },
+      {
+        "command": "luna.generateVideo",
+        "title": "Generate Video",
+        "category": "Luna",
+        "description": "Create video content from text descriptions using Grok 4.20"
+      },
+      {
+        "command": "luna.generateVoice",
+        "title": "Generate Voice",
+        "category": "Luna",
+        "description": "Convert text to speech using Grok 4.20's voice synthesis"
+      },
+      {
+        "command": "luna.processVideo",
+        "title": "Process Video with AI",
+        "category": "Luna",
+        "description": "Analyze video content using Grok 4.20's video processing capabilities"
+      },
+      {
+        "command": "luna.processVoice",
+        "title": "Process Voice/Audio",
+        "category": "Luna",
+        "description": "Transcribe and analyze audio using Grok 4.20's voice processing"
+      },
+      {
+        "command": "luna.startMacroFlow",
+        "title": "Start MacroFlow Ritual",
+        "category": "Luna"
+      },
+      {
+        "command": "luna.setupWorkspace",
+        "title": "Setup Luna Workspace",
+        "category": "Luna",
+        "description": "Safely initialize ~/.github or ./.github directory with Luna's latest agent files, skills, and configuration (non-destructive, choose user or workspace level)"
+      },
+      {
+        "command": "luna.syncGrokCom",
+        "title": "Sync with grok.com",
+        "category": "Luna"
+      },
+      {
+        "command": "luna.voiceQuery",
+        "title": "Voice Query",
+        "category": "Luna"
+      }
+    ],
+    "configuration": {
+      "title": "Luna Sherpa Multi-Agent",
+      "properties": {
+        "lunaSherpa.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your xAI API key (get at console.x.ai)"
+        },
+        "lunaSherpa.model": {
+          "type": "string",
+          "default": "grok-4-1-fast-reasoning",
+          "enum": [
+            "grok-4-1-fast-reasoning",
+            "grok-4"
+          ]
+        },
+        "lunaSherpa.userAddress": {
+          "type": "string",
+          "default": "sahib",
+          "description": "How Luna addresses you (e.g., your name or a neutral term like 'sahib')"
+        },
+        "lunaSherpa.applicationInsightsKey": {
+          "type": "string",
+          "default": "5f8c893f-868d-4bad-b9b8-9d86b36b4f0d",
+          "description": "Azure Application Insights instrumentation key for telemetry. Replace with your own key from Azure Portal."
+        },
+        "lunaSherpa.grok420Enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Grok 4.20 features (video, voice, build capabilities)"
+        },
+        "lunaSherpa.videoEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable video processing and generation features"
+        },
+        "lunaSherpa.voiceEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable voice processing and generation features"
+        },
+        "lunaSherpa.buildEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Grok Build code generation features"
+        },
+        "lunaSherpa.preferredVoice": {
+          "type": "string",
+          "default": "default",
+          "enum": [
+            "default",
+            "male",
+            "female",
+            "neutral"
+          ],
+          "description": "Preferred voice for text-to-speech generation"
+        },
+        "lunaSherpa.videoQuality": {
+          "type": "string",
+          "default": "high",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "ultra"
+          ],
+          "description": "Video generation quality setting"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npm run compile && npx @vscode/vsce package",
+    "test": "npm run compile && node ./out/test/runTest.js"
+  },
+  "dependencies": {
+    "applicationinsights": "^3.3.11"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "glob": "^13.0.6",
+    "mocha": "^10.4.0",
+    "typescript": "^5.3.3"
+  }
+}
