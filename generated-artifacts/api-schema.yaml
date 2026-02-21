@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Collaborative Code Review API
+  version: 1.0.0
+  description: Real-time collaborative code review system with AI assistance
+
+servers:
+  - url: https://api.codereview.dev/v1
+
+paths:
+  /reviews:
+    get:
+      summary: Get code reviews
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, open, under_review, approved, rejected]
+        - name: author
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of code reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeReview'
+
+    post:
+      summary: Create new code review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Code review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeReview'
+
+  /reviews/{reviewId}/comments:
+    get:
+      summary: Get review comments
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewComment'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, reviewer, developer]
+
+    CodeReview:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          $ref: '#/components/schemas/User'
+        reviewers:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        status:
+          type: string
+          enum: [draft, open, under_review, approved, rejected]
+
+    CreateReviewRequest:
+      type: object
+      required:
+        - title
+        - repository
+        - branch
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        repository:
+          type: string
+        branch:
+          type: string
+        reviewerIds:
+          type: array
+          items:
+            type: string
+
+    ReviewComment:
+      type: object
+      properties:
+        id:
+          type: string
+        reviewId:
+          type: string
+        author:
+          $ref: '#/components/schemas/User'
+        filePath:
+          type: string
+        lineNumber:
+          type: integer
+        content:
+          type: string
+        type:
+          type: string
+          enum: [comment, suggestion, issue]
