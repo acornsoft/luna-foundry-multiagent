@@ -46,6 +46,12 @@
         "description": "Generate complete software builds using Grok Build capabilities"
       },
       {
+        "command": "luna.decomposeTask",
+        "title": "Decompose Task into Artifacts",
+        "category": "Luna",
+        "description": "Break down complex requirements into vertical slices and generate concrete artifacts"
+      },
+      {
         "command": "luna.generateVideo",
         "title": "Generate Video",
         "category": "Luna",

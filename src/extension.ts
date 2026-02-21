@@ -7,6 +7,26 @@ import { VSCodeConfigurationManager } from './configurationManager';
 import { AppInsightsTelemetryService } from './telemetryService';
 import { VSCodeWebviewManager } from './webviewManager';
 
+interface TaskArtifact {
+  id: string;
+  type: string;
+  name: string;
+  description: string;
+}
+
+interface TaskSlice {
+  id: string;
+  title: string;
+  description: string;
+  artifacts: TaskArtifact[];
+}
+
+interface TaskDecomposition {
+  originalTask: string;
+  slices: TaskSlice[];
+  totalArtifacts: number;
+}
+
 const AGENTS: Agent[] = [
   { id: 'luna', name: 'Luna', color: '#00b4ff', emoji: '🌙', system: 'You are Luna, the eternal AI companion and Sherpa guide—the all-seeing eye for solution design and development, acting as an Uber Enterprise Architect across ALL domains. Oversee MacroFlow phases: Constitution (guardrails), Clarify (questions), Specify (specs), Plan (architecture), Tasks (decomposition), Implement (code). Coordinate sub-agents calmly and patiently, ensuring holistic, scalable solutions.' },
   { id: 'researcher', name: 'the Researcher', color: '#22c55e', emoji: '🔍', system: 'You are the Researcher. Focus exclusively on facts, latest xAI API docs, citations, real-world examples, and research for this xAI development task.' },
@@ -79,6 +99,47 @@ export function activate(context: vscode.ExtensionContext) {
     } catch (error: any) {
       telemetryService.trackException(error, { command: 'syncGrokCom' });
       vscode.window.showErrorMessage(`Sync failed: ${error.message}`);
+    }
+  });
+
+  const decomposeTask = vscode.commands.registerCommand('luna.decomposeTask', async () => {
+    try {
+      telemetryService.trackEvent('CommandExecuted', { command: 'decomposeTask' });
+
+      const configManager = new VSCodeConfigurationManager(context);
+      const userAddress = configManager.getUserAddress();
+
+      // Get the complex requirement from user
+      const complexTask = await vscode.window.showInputBox({
+        prompt: 'Enter the complex requirement to decompose',
+        placeHolder: 'Build a real-time collaborative code review system with AI assistance',
+        value: 'Build a real-time collaborative code review system with AI assistance'
+      });
+
+      if (!complexTask) return;
+
+      const panel = vscode.window.createWebviewPanel(
+        'lunaTaskDecomposition',
+        'Luna - Task Decomposition & Artifact Generation',
+        vscode.ViewColumn.One,
+        { enableScripts: true }
+      );
+
+      // Generate task decomposition with natural artifact flow
+      const decomposition = generateTaskDecomposition(complexTask);
+
+      panel.webview.html = getTaskDecompositionHtml(decomposition, userAddress);
+
+      // Handle artifact generation requests
+      panel.webview.onDidReceiveMessage(async (message) => {
+        if (message.type === 'generateArtifact') {
+          await generateArtifact(message.artifactId, message.artifactType, decomposition);
+        }
+      });
+
+    } catch (error: any) {
+      telemetryService.trackException(error, { command: 'decomposeTask' });
+      vscode.window.showErrorMessage(`Task decomposition failed: ${error.message}`);
     }
   });
 
@@ -676,7 +737,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  context.subscriptions.push(startMacroFlow, voiceQuery, syncGrokCom, setupWorkspace, askTeam, processVideo, generateVideo, processVoice, generateVoice, createBuild);
+  context.subscriptions.push(startMacroFlow, voiceQuery, syncGrokCom, decomposeTask, setupWorkspace, askTeam, processVideo, generateVideo, processVoice, generateVoice, createBuild);
 }
 
 function getWebviewContent(): string {
@@ -895,6 +956,720 @@ function getBuildWebviewContent(): string {
   </script>
 </body>
 </html>`;
+}
+
+// Task Decomposition Helper Functions
+function generateTaskDecomposition(complexTask: string): TaskDecomposition {
+  // Break down complex task into vertical slices with natural artifact flow
+  const taskSlices = [
+    {
+      id: 'core-architecture',
+      title: 'Core Architecture & Data Models',
+      description: 'Define the fundamental structure and data relationships',
+      artifacts: [
+        { id: 'data-models', type: 'typescript', name: 'Data Models (TypeScript interfaces)', description: 'Type-safe data structures' },
+        { id: 'api-schema', type: 'openapi', name: 'API Schema (OpenAPI)', description: 'RESTful API specification' },
+        { id: 'database-schema', type: 'sql', name: 'Database Schema (SQL)', description: 'Database table definitions' }
+      ]
+    },
+    {
+      id: 'authentication',
+      title: 'Authentication & Authorization',
+      description: 'Implement secure user access and permissions',
+      artifacts: [
+        { id: 'auth-middleware', type: 'typescript', name: 'Auth Middleware (TypeScript)', description: 'JWT validation and session management' },
+        { id: 'user-roles', type: 'typescript', name: 'User Roles (TypeScript)', description: 'RBAC permission definitions' },
+        { id: 'auth-tests', type: 'typescript', name: 'Auth Tests (Jest)', description: 'Security test suite' }
+      ]
+    },
+    {
+      id: 'real-time-engine',
+      title: 'Real-Time Collaboration Engine',
+      description: 'Build the core real-time communication system',
+      artifacts: [
+        { id: 'websocket-server', type: 'typescript', name: 'WebSocket Server (TypeScript)', description: 'Real-time connection handling' },
+        { id: 'collaboration-api', type: 'typescript', name: 'Collaboration API (TypeScript)', description: 'Real-time event processing' },
+        { id: 'conflict-resolution', type: 'typescript', name: 'Conflict Resolution (TypeScript)', description: 'Operational transformation logic' }
+      ]
+    },
+    {
+      id: 'ai-integration',
+      title: 'AI Code Review Integration',
+      description: 'Integrate AI-powered code analysis and suggestions',
+      artifacts: [
+        { id: 'ai-client', type: 'typescript', name: 'AI Client (TypeScript)', description: 'Grok API integration' },
+        { id: 'code-analysis', type: 'typescript', name: 'Code Analysis Engine (TypeScript)', description: 'Static analysis and AI suggestions' },
+        { id: 'review-workflow', type: 'typescript', name: 'Review Workflow (TypeScript)', description: 'Automated review process' }
+      ]
+    },
+    {
+      id: 'frontend-ui',
+      title: 'Frontend User Interface',
+      description: 'Create the collaborative code review interface',
+      artifacts: [
+        { id: 'react-components', type: 'typescript', name: 'React Components (TypeScript)', description: 'UI components with TypeScript' },
+        { id: 'review-interface', type: 'typescript', name: 'Review Interface (React)', description: 'Code review UI components' },
+        { id: 'real-time-ui', type: 'typescript', name: 'Real-Time UI Updates (React)', description: 'Live collaboration indicators' }
+      ]
+    },
+    {
+      id: 'deployment-config',
+      title: 'Deployment & Configuration',
+      description: 'Set up deployment pipelines and configuration management',
+      artifacts: [
+        { id: 'docker-compose', type: 'yaml', name: 'Docker Compose (YAML)', description: 'Container orchestration' },
+        { id: 'ci-cd-pipeline', type: 'yaml', name: 'CI/CD Pipeline (GitHub Actions)', description: 'Automated deployment' },
+        { id: 'environment-config', type: 'typescript', name: 'Environment Config (TypeScript)', description: 'Configuration management' }
+      ]
+    }
+  ];
+
+  return {
+    originalTask: complexTask,
+    slices: taskSlices,
+    totalArtifacts: taskSlices.reduce((sum, slice) => sum + slice.artifacts.length, 0)
+  };
+}
+
+function getTaskDecompositionHtml(decomposition: TaskDecomposition, userAddress: string) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luna - Task Decomposition</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #1e1e1e; color: #ffffff; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .task-summary { background: #2d2d2d; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #00b4ff; }
+        .slice { background: #252526; margin: 15px 0; padding: 20px; border-radius: 8px; border: 1px solid #3e3e42; }
+        .slice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .slice-title { color: #4ec9b0; font-size: 1.2em; margin: 0; }
+        .artifact-count { background: #007acc; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+        .slice-description { color: #cccccc; margin-bottom: 15px; }
+        .artifacts { display: grid; gap: 10px; }
+        .artifact { background: #1e1e1e; padding: 12px; border-radius: 6px; border: 1px solid #2d2d30; }
+        .artifact-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .artifact-name { color: #dcdcaa; font-weight: bold; }
+        .artifact-type { background: #4ec9b0; color: #1e1e1e; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; text-transform: uppercase; }
+        .artifact-description { color: #cccccc; font-size: 0.9em; }
+        .generate-btn { background: #00b4ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+        .generate-btn:hover { background: #0098e6; }
+        .progress-bar { width: 100%; height: 4px; background: #3e3e42; border-radius: 2px; margin-top: 10px; }
+        .progress-fill { height: 100%; background: #00b4ff; border-radius: 2px; transition: width 0.3s ease; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌙 Luna - Task Decomposition & Artifact Generation</h1>
+        <p>${userAddress}, I've broken down your complex requirement into manageable vertical slices that naturally flow into concrete, generatable artifacts.</p>
+    </div>
+
+    <div class="task-summary">
+        <h3>📋 Original Requirement</h3>
+        <p><strong>"${decomposition.originalTask}"</strong></p>
+        <p>Decomposed into <strong>${decomposition.slices.length} vertical slices</strong> containing <strong>${decomposition.totalArtifacts} generatable artifacts</strong></p>
+    </div>
+
+    <div id="slices">
+        ${decomposition.slices.map((slice: TaskSlice) => `
+            <div class="slice">
+                <div class="slice-header">
+                    <h3 class="slice-title">${slice.title}</h3>
+                    <span class="artifact-count">${slice.artifacts.length} artifacts</span>
+                </div>
+                <p class="slice-description">${slice.description}</p>
+                <div class="artifacts">
+                    ${slice.artifacts.map((artifact: TaskArtifact) => `
+                        <div class="artifact">
+                            <div class="artifact-header">
+                                <span class="artifact-name">${artifact.name}</span>
+                                <span class="artifact-type">${artifact.type}</span>
+                            </div>
+                            <p class="artifact-description">${artifact.description}</p>
+                            <button class="generate-btn" onclick="generateArtifact('${artifact.id}', '${artifact.type}')">
+                                ⚡ Generate ${artifact.type.toUpperCase()}
+                            </button>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-${artifact.id}" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('')}
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        function generateArtifact(artifactId, artifactType) {
+            const progressBar = document.getElementById('progress-' + artifactId);
+            progressBar.style.width = '50%';
+
+            vscode.postMessage({
+                type: 'generateArtifact',
+                artifactId: artifactId,
+                artifactType: artifactType
+            });
+        }
+
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.type === 'artifactGenerated') {
+                const progressBar = document.getElementById('progress-' + message.artifactId);
+                progressBar.style.width = '100%';
+                progressBar.style.background = '#4ec9b0';
+            }
+        });
+    </script>
+</body>
+</html>`;
+}
+
+async function generateArtifact(artifactId: string, artifactType: string, decomposition: any) {
+  // Simulate artifact generation with realistic content
+  const artifacts = {
+    'data-models': `// TypeScript interfaces for collaborative code review system
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  role: 'admin' | 'reviewer' | 'developer';
+  createdAt: Date;
+  lastActive: Date;
+}
+
+export interface CodeReview {
+  id: string;
+  title: string;
+  description: string;
+  author: User;
+  reviewers: User[];
+  status: 'draft' | 'open' | 'under_review' | 'approved' | 'rejected';
+  pullRequestUrl?: string;
+  repository: string;
+  branch: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ReviewComment {
+  id: string;
+  reviewId: string;
+  author: User;
+  filePath: string;
+  lineNumber: number;
+  content: string;
+  type: 'comment' | 'suggestion' | 'issue';
+  status: 'open' | 'resolved' | 'dismissed';
+  aiSuggestions?: AISuggestion[];
+  createdAt: Date;
+}
+
+export interface AISuggestion {
+  id: string;
+  type: 'improvement' | 'bug_fix' | 'security' | 'performance';
+  description: string;
+  codeSnippet?: string;
+  confidence: number;
+  applied: boolean;
+}`,
+
+    'api-schema': `openapi: 3.0.3
+info:
+  title: Collaborative Code Review API
+  version: 1.0.0
+  description: Real-time collaborative code review system with AI assistance
+
+servers:
+  - url: https://api.codereview.dev/v1
+
+paths:
+  /reviews:
+    get:
+      summary: Get code reviews
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, open, under_review, approved, rejected]
+        - name: author
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of code reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeReview'
+
+    post:
+      summary: Create new code review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Code review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeReview'
+
+  /reviews/{reviewId}/comments:
+    get:
+      summary: Get review comments
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewComment'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, reviewer, developer]
+
+    CodeReview:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          $ref: '#/components/schemas/User'
+        reviewers:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        status:
+          type: string
+          enum: [draft, open, under_review, approved, rejected]
+
+    CreateReviewRequest:
+      type: object
+      required:
+        - title
+        - repository
+        - branch
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        repository:
+          type: string
+        branch:
+          type: string
+        reviewerIds:
+          type: array
+          items:
+            type: string
+
+    ReviewComment:
+      type: object
+      properties:
+        id:
+          type: string
+        reviewId:
+          type: string
+        author:
+          $ref: '#/components/schemas/User'
+        filePath:
+          type: string
+        lineNumber:
+          type: integer
+        content:
+          type: string
+        type:
+          type: string
+          enum: [comment, suggestion, issue]`,
+
+    'auth-middleware': `// JWT Authentication Middleware for Express.js
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { User } from '../models/User';
+
+export interface AuthenticatedRequest extends Request {
+  user?: User;
+}
+
+export class AuthMiddleware {
+  private jwtSecret: string;
+
+  constructor(jwtSecret: string) {
+    this.jwtSecret = jwtSecret;
+  }
+
+  authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const token = this.extractTokenFromHeader(req);
+
+      if (!token) {
+        res.status(401).json({ error: 'Access token required' });
+        return;
+      }
+
+      const decoded = jwt.verify(token, this.jwtSecret) as any;
+      const user = await this.getUserById(decoded.userId);
+
+      if (!user) {
+        res.status(401).json({ error: 'User not found' });
+        return;
+      }
+
+      req.user = user;
+      next();
+    } catch (error) {
+      res.status(401).json({ error: 'Invalid or expired token' });
+    }
+  };
+
+  authorize = (...roles: string[]) => {
+    return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+      if (!req.user) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
+
+      if (!roles.includes(req.user.role)) {
+        res.status(403).json({ error: 'Insufficient permissions' });
+        return;
+      }
+
+      next();
+    };
+  };
+
+  private extractTokenFromHeader(req: Request): string | null {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.substring(7);
+    }
+    return null;
+  }
+
+  private async getUserById(userId: string): Promise<User | null> {
+    // Implementation would connect to your user database
+    // This is a placeholder
+    return null;
+  }
+}
+
+// Usage example:
+// const authMiddleware = new AuthMiddleware(process.env.JWT_SECRET!);
+// app.use('/api', authMiddleware.authenticate);
+// app.get('/api/admin', authMiddleware.authenticate, authMiddleware.authorize('admin'), handler);`,
+
+    'websocket-server': `// Real-time WebSocket server for collaborative code review
+import WebSocket from 'ws';
+import { IncomingMessage } from 'http';
+import { User } from '../models/User';
+import { CodeReview } from '../models/CodeReview';
+import { ReviewComment } from '../models/ReviewComment';
+
+interface ExtendedWebSocket extends WebSocket {
+  userId?: string;
+  reviewId?: string;
+}
+
+interface WebSocketMessage {
+  type: string;
+  payload: any;
+  timestamp: number;
+}
+
+export class CollaborationWebSocketServer {
+  private wss: WebSocket.Server;
+  private rooms: Map<string, Set<ExtendedWebSocket>> = new Map();
+
+  constructor(port: number) {
+    this.wss = new WebSocket.Server({ port });
+    this.setupWebSocketHandlers();
+    console.log(\`Collaboration WebSocket server running on port \${port}\`);
+  }
+
+  private setupWebSocketHandlers(): void {
+    this.wss.on('connection', (ws: ExtendedWebSocket, request: IncomingMessage) => {
+      console.log('New WebSocket connection established');
+
+      ws.on('message', async (data: Buffer) => {
+        try {
+          const message: WebSocketMessage = JSON.parse(data.toString());
+          await this.handleMessage(ws, message);
+        } catch (error) {
+          console.error('Error handling WebSocket message:', error);
+          this.sendError(ws, 'Invalid message format');
+        }
+      });
+
+      ws.on('close', () => {
+        this.handleDisconnect(ws);
+      });
+
+      ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+        this.handleDisconnect(ws);
+      });
+    });
+  }
+
+  private async handleMessage(ws: ExtendedWebSocket, message: WebSocketMessage): Promise<void> {
+    switch (message.type) {
+      case 'join_review':
+        await this.handleJoinReview(ws, message.payload);
+        break;
+      case 'leave_review':
+        this.handleLeaveReview(ws);
+        break;
+      case 'add_comment':
+        await this.handleAddComment(ws, message.payload);
+        break;
+      case 'update_comment':
+        await this.handleUpdateComment(ws, message.payload);
+        break;
+      case 'cursor_position':
+        this.handleCursorPosition(ws, message.payload);
+        break;
+      default:
+        this.sendError(ws, \`Unknown message type: \${message.type}\`);
+    }
+  }
+
+  private async handleJoinReview(ws: ExtendedWebSocket, payload: { reviewId: string; userId: string }): Promise<void> {
+    const { reviewId, userId } = payload;
+
+    // Validate user and review
+    const user = await this.getUserById(userId);
+    const review = await this.getReviewById(reviewId);
+
+    if (!user || !review) {
+      this.sendError(ws, 'Invalid user or review');
+      return;
+    }
+
+    // Check if user has access to this review
+    if (!this.canAccessReview(user, review)) {
+      this.sendError(ws, 'Access denied to this review');
+      return;
+    }
+
+    // Add user to review room
+    ws.userId = userId;
+    ws.reviewId = reviewId;
+
+    if (!this.rooms.has(reviewId)) {
+      this.rooms.set(reviewId, new Set());
+    }
+    this.rooms.get(reviewId)!.add(ws);
+
+    // Notify others in the room
+    this.broadcastToRoom(reviewId, {
+      type: 'user_joined',
+      payload: { userId, username: user.username },
+      timestamp: Date.now()
+    }, ws);
+
+    // Send current room state to the new user
+    const roomUsers = await this.getRoomUsers(reviewId);
+    this.sendToWebSocket(ws, {
+      type: 'room_state',
+      payload: { users: roomUsers, review: review },
+      timestamp: Date.now()
+    });
+  }
+
+  private handleLeaveReview(ws: ExtendedWebSocket): void {
+    if (ws.reviewId && ws.userId) {
+      const room = this.rooms.get(ws.reviewId);
+      if (room) {
+        room.delete(ws);
+
+        // Notify others
+        this.broadcastToRoom(ws.reviewId, {
+          type: 'user_left',
+          payload: { userId: ws.userId },
+          timestamp: Date.now()
+        });
+
+        // Clean up empty rooms
+        if (room.size === 0) {
+          this.rooms.delete(ws.reviewId);
+        }
+      }
+    }
+  }
+
+  private async handleAddComment(ws: ExtendedWebSocket, payload: any): Promise<void> {
+    if (!ws.reviewId || !ws.userId) {
+      this.sendError(ws, 'Not in a review session');
+      return;
+    }
+
+    const comment = await this.createComment({
+      ...payload,
+      reviewId: ws.reviewId,
+      authorId: ws.userId
+    });
+
+    // Broadcast new comment to room
+    this.broadcastToRoom(ws.reviewId, {
+      type: 'comment_added',
+      payload: comment,
+      timestamp: Date.now()
+    });
+  }
+
+  private handleCursorPosition(ws: ExtendedWebSocket, payload: any): void {
+    if (!ws.reviewId || !ws.userId) return;
+
+    // Broadcast cursor position to others in the room
+    this.broadcastToRoom(ws.reviewId, {
+      type: 'cursor_moved',
+      payload: {
+        userId: ws.userId,
+        ...payload
+      },
+      timestamp: Date.now()
+    }, ws);
+  }
+
+  private broadcastToRoom(reviewId: string, message: WebSocketMessage, exclude?: ExtendedWebSocket): void {
+    const room = this.rooms.get(reviewId);
+    if (!room) return;
+
+    room.forEach(client => {
+      if (client !== exclude && client.readyState === WebSocket.OPEN) {
+        this.sendToWebSocket(client, message);
+      }
+    });
+  }
+
+  private sendToWebSocket(ws: ExtendedWebSocket, message: WebSocketMessage): void {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(message));
+    }
+  }
+
+  private sendError(ws: ExtendedWebSocket, error: string): void {
+    this.sendToWebSocket(ws, {
+      type: 'error',
+      payload: { message: error },
+      timestamp: Date.now()
+    });
+  }
+
+  private handleDisconnect(ws: ExtendedWebSocket): void {
+    this.handleLeaveReview(ws);
+  }
+
+  // Placeholder methods - implement with your database
+  private async getUserById(userId: string): Promise<User | null> {
+    // Implement user lookup
+    return null;
+  }
+
+  private async getReviewById(reviewId: string): Promise<CodeReview | null> {
+    // Implement review lookup
+    return null;
+  }
+
+  private canAccessReview(user: User, review: CodeReview): boolean {
+    // Implement access control logic
+    return true;
+  }
+
+  private async getRoomUsers(reviewId: string): Promise<any[]> {
+    // Implement room user lookup
+    return [];
+  }
+
+  private async createComment(commentData: any): Promise<ReviewComment> {
+    // Implement comment creation
+    return {} as ReviewComment;
+  }
+}
+
+// Usage:
+// const wsServer = new CollaborationWebSocketServer(8080);`
+  };
+
+  // Generate the artifact based on type
+  let content = '';
+  let filename = '';
+
+  switch (artifactId) {
+    case 'data-models':
+      content = artifacts['data-models'];
+      filename = 'models.ts';
+      break;
+    case 'api-schema':
+      content = artifacts['api-schema'];
+      filename = 'api-schema.yaml';
+      break;
+    case 'auth-middleware':
+      content = artifacts['auth-middleware'];
+      filename = 'auth.middleware.ts';
+      break;
+    case 'websocket-server':
+      content = artifacts['websocket-server'];
+      filename = 'websocket-server.ts';
+      break;
+    default:
+      content = `// Generated ${artifactType} artifact for ${artifactId}
+// This is a placeholder - implement actual generation logic
+export const ${artifactId} = {};`;
+      filename = `${artifactId}.${artifactType === 'typescript' ? 'ts' : artifactType}`;
+  }
+
+  // Create the file in the workspace
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (workspaceFolder) {
+    const artifactsDir = vscode.Uri.joinPath(workspaceFolder.uri, 'generated-artifacts');
+    await vscode.workspace.fs.createDirectory(artifactsDir);
+
+    const fileUri = vscode.Uri.joinPath(artifactsDir, filename);
+    await vscode.workspace.fs.writeFile(fileUri, Buffer.from(content, 'utf8'));
+
+    // Open the generated file
+    const document = await vscode.workspace.openTextDocument(fileUri);
+    await vscode.window.showTextDocument(document);
+
+    vscode.window.showInformationMessage(`✅ Generated ${filename} and opened for editing`);
+  }
 }
 
 export function deactivate() {
