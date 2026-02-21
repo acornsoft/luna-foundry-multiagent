@@ -163,3 +163,6 @@ build/
 # Temporary files
 *.tmp
 *.temp
+
+# VS Code test directory
+.vscode-test/
